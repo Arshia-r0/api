@@ -7,4 +7,3 @@ router = DefaultRouter()
 router.register('post', PostViewSet, basename='post')
 router.register('comment', CommentViewSet, basename='comment')
 urlpatterns = router.urls
-#
