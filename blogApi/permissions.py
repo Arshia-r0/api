@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 
-class GeneralObjectPermissions(permissions.BasePermission):
+class PostCommentObjectPermissions(permissions.BasePermission):
 
     def has_permission(self, request, view):
         if request.user.is_authenticated or request.method in permissions.SAFE_METHODS:

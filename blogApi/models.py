@@ -41,7 +41,6 @@ class Comment(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     following = models.ManyToManyField(User, related_name='following', blank=True)
-    followers = models.ManyToManyField(User, related_name='followers', blank=True)
     postLikes = models.ManyToManyField(Post, related_name='postLikes', blank=True)
     postDislikes = models.ManyToManyField(Post, related_name='postDislikes', blank=True)
     commentLikes = models.ManyToManyField(Comment, related_name='commentLikes', blank=True)

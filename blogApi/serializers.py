@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from blogApi.models import Post, Comment
+from blogApi.models import Post, Comment, UserProfile
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -17,3 +17,9 @@ class CommentSerializer(serializers.ModelSerializer):
         exclude = ['isDeleted']
         read_only_fields = ['id', 'author', 'post',
             'postDate', 'editedDate', 'likes', 'dislikes']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        read_only_fields = '__all__'
