@@ -1,3 +1,5 @@
+from django.shortcuts import get_object_or_404
+
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 
@@ -12,9 +14,18 @@ class PostViewSet(viewsets.ModelViewSet):
     permission_classes = [GeneralObjectPermissions]
     pagination_class = PageNumberPagination
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.filter(isDeleted=False)
     serializer_class = CommentSerializer
     permission_classes = [GeneralObjectPermissions]
     pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        return Comment.objects.filter(isDeleted=False, post=self.kwargs['pid']).order_by('-postDate')
+
+    def perform_create(self, serializer):
+        post = get_object_or_404(Post, id=self.kwargs['pid'], isDeleted=False)
+        serializer.save(author=self.request.user, post=post)

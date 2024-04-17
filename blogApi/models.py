@@ -16,6 +16,10 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
+    def delete(self, **kwargs):
+        self.isDeleted = True
+        self.save()
+
 
 class Comment(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -30,8 +34,12 @@ class Comment(models.Model):
     def __str__(self):
         return self.content
 
+    def delete(self, **kwargs):
+        self.isDeleted = True
+
 
 class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     following = models.ManyToManyField(User, related_name='following', blank=True)
     followers = models.ManyToManyField(User, related_name='followers', blank=True)
     postLikes = models.ManyToManyField(Post, related_name='postLikes', blank=True)

@@ -5,5 +5,5 @@ from blogApi.views import PostViewSet, CommentViewSet
 
 router = DefaultRouter()
 router.register('post', PostViewSet, basename='post')
-router.register('comment', CommentViewSet, basename='comment')
+router.register(r'post/(?P<pid>\d+)/comment', CommentViewSet, basename='comment')
 urlpatterns = router.urls
