@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.db import models
-from rules.contrib.models import RulesModel
 
 
 class Post(models.Model):
@@ -40,9 +39,11 @@ class Comment(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    following = models.ManyToManyField(User, related_name='following', blank=True)
-    postLikes = models.ManyToManyField(Post, related_name='postLikes', blank=True)
-    postDislikes = models.ManyToManyField(Post, related_name='postDislikes', blank=True)
-    commentLikes = models.ManyToManyField(Comment, related_name='commentLikes', blank=True)
-    commentDislikes = models.ManyToManyField(Comment, related_name='commentDislikes', blank=True)
+    Votes = models.ManyToManyField(Post, related_name='Votes', through='Votes')
     isPrivate = models.BooleanField(default=False)
+
+
+class Votes(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    vote = models.IntegerField(default=0, choices=[(-1, 'dislike'), (0, ''), (1, 'like')])
