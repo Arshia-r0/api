@@ -40,9 +40,9 @@ class Comment(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     postVotes = models.ManyToManyField(Post, related_name='postVotes',
-        through='Vote', through_fields=('user', 'post'))
+        through='PostVote')
     commentVotes = models.ManyToManyField(Comment, related_name='commentVotes',
-        through='Vote', through_fields=('user', 'comment'))
+        through='CommentVote')
     isPrivate = models.BooleanField(default=False)
     isDeleted = models.BooleanField(default=False)
 
@@ -53,8 +53,19 @@ class UserProfile(models.Model):
         self.isDeleted = True
 
 
-class Vote(models.Model):
+class PostVote(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, default=None)
+    vote = models.IntegerField(default=0, choices=[(-1, 'dislike'), (0, 'None'), (1, 'like')])
+
+    def __str__(self):
+        return str(self.post) + ' -> ' + str(self.vote)
+
+
+class CommentVote(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, default=None)
-    vote = models.IntegerField(default=0, choices=[(-1, 'dislike'), (0, ''), (1, 'like')])
+    vote = models.IntegerField(default=0, choices=[(-1, 'dislike'), (0, 'None'), (1, 'like')])
+
+    def __str__(self):
+        return str(self.comment) + ' -> ' + str(self.vote)
