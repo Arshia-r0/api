@@ -1,8 +1,9 @@
 from django.contrib import admin
 
-from blogApi.models import Post,Comment, UserProfile
+from blogApi.models import *
 
 
 admin.site.register(UserProfile)
 admin.site.register(Post)
 admin.site.register(Comment)
+admin.site.register(Vote)

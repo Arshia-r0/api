@@ -2,9 +2,7 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.generics import UpdateAPIView
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from blogApi.models import Post, Comment, UserProfile
@@ -20,20 +18,6 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-    @action(methods=['GET'], detail=True, permission_classes=[PostCommentObjectPermissions])
-    def like(self, request, pk=None):
-        post = get_object_or_404(Post, pk=pk, isDeleted=False)
-        user = UserProfile.objects.get(user=request.user)
-        if post in user.postLikes.all():
-            user.postLikes.remove(post)
-            post.likes -= 1
-        else:
-            user.postLikes.add(post)
-            post.likes += 1
-        user.save()
-        post.save()
-        return Response(PostSerializer(post).data, status=status.HTTP_200_OK)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
