@@ -13,7 +13,7 @@ class Post(models.Model):
     isDeleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.title
+        return str(self.id) + ': ' + self.title
 
     def delete(self, **kwargs):
         self.isDeleted = True
@@ -31,10 +31,11 @@ class Comment(models.Model):
     isDeleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.content
+        return str(self.id) + ': ' + self.content
 
     def delete(self, **kwargs):
         self.isDeleted = True
+        self.save()
 
 
 class UserProfile(models.Model):
@@ -47,7 +48,7 @@ class UserProfile(models.Model):
     isDeleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.user.username)
+        return str(self.id) + ': ' + str(self.user.username)
 
     def delete(self, **kwargs):
         self.isDeleted = True
@@ -59,7 +60,7 @@ class PostVote(models.Model):
     vote = models.IntegerField(default=0, choices=[(-1, 'dislike'), (0, 'None'), (1, 'like')])
 
     def __str__(self):
-        return str(self.post) + ' -> ' + str(self.vote)
+        return str(self.id) + ': ' + str(self.post) + ' -> ' + str(self.vote)
 
 
 class CommentVote(models.Model):
@@ -68,4 +69,4 @@ class CommentVote(models.Model):
     vote = models.IntegerField(default=0, choices=[(-1, 'dislike'), (0, 'None'), (1, 'like')])
 
     def __str__(self):
-        return str(self.comment) + ' -> ' + str(self.vote)
+        return str(self.id) + ': ' + str(self.comment) + ' -> ' + str(self.vote)

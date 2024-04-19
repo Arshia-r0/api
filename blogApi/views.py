@@ -24,11 +24,21 @@ class PostViewSet(viewsets.ModelViewSet):
         if vote in [-1, 0, 1]:
             post = self.get_object()
             user = UserProfile.objects.get(user=request.user)
-            vote_obj = PostVote(post=post, user=user, vote=vote)
+            try:
+                vote_obj = PostVote.objects.get(post=post, user=user)
+                vote_obj.vote = vote
+            except PostVote.DoesNotExist:
+                vote_obj = PostVote(post=post, user=user, vote=vote)
             vote_obj.save()
-            return Response(PostSerializer(post).data, status=status.HTTP_200_OK)
+            self.update_vote_count(post)
+            return Response(PostSerializer(post).data, status=status.HTTP_202_ACCEPTED)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def update_vote_count(self, post):
+        post.likes = PostVote.objects.filter(post=post, vote=1).count()
+        post.dislikes = PostVote.objects.filter(post=post, vote=-1).count()
+        post.save()
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -49,10 +59,19 @@ class CommentViewSet(viewsets.ModelViewSet):
         if vote in [-1, 0, 1]:
             comment = self.get_object()
             user = UserProfile.objects.get(user=request.user)
-            vote_obj = CommentVote(comment=comment, user=user, vote=vote)
+            try:
+                vote_obj = CommentVote.objects.get(comment=comment, user=user)
+                vote_obj.vote = vote
+            except CommentVote.DoesNotExist:
+                vote_obj = CommentVote(comment=comment, user=user, vote=vote)
             vote_obj.save()
-            return Response(CommentSerializer(Comment).data, status=status.HTTP_200_OK)
+            self.update_vote_count(comment)
+            return Response(CommentSerializer(comment).data, status=status.HTTP_202_ACCEPTED)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    def update_vote_count(self, comment):
+        comment.likes = CommentVote.objects.filter(comment=comment, vote=1).count()
+        comment.dislikes = CommentVote.objects.filter(comment=comment, vote=-1).count()
+        comment.save()
 # user subs

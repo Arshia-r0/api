@@ -16,7 +16,7 @@ class PostCommentObjectPermissions(permissions.BasePermission):
         if request.user.is_superuser:
             return True
 
-        if request.method == 'POST' and request.user.is_authenticated:
+        if request.method in ['POST', 'PATCH'] and request.user.is_authenticated:
             return True
 
         if request.user == obj.author:
