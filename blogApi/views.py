@@ -5,9 +5,9 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from blogApi.models import Post, Comment, UserProfile, PostVote, CommentVote
-from blogApi.serializers import PostSerializer, CommentSerializer
-from blogApi.permissions import PostCommentObjectPermissions
+from blogApi.models import *
+from blogApi.serializers import *
+from blogApi.permissions import *
 
 
 class PostCommentViewSet(viewsets.ModelViewSet):
@@ -76,4 +76,14 @@ class CommentViewSet(PostCommentViewSet):
         post = get_object_or_404(Post, id=self.kwargs['pid'], isDeleted=False)
         serializer.save(author=self.request.user, post=post)
 
-# user subs
+
+class UserViewSet(viewsets.ModelViewSet):
+    permission_classes = [UserPermissions]
+    serializer_class = UserSerializer
+    pagination_class = PageNumberPagination
+    http_method_names = ['get', 'post', 'patch', 'delete', 'options']
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return UserProfile.objects.all()
+        return UserProfile.objects.filter(isDeleted=False, isPrivate=False)

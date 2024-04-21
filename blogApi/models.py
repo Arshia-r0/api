@@ -40,10 +40,9 @@ class Comment(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    postVotes = models.ManyToManyField(Post, related_name='postVotes',
-        through='PostVote')
-    commentVotes = models.ManyToManyField(Comment, related_name='commentVotes',
-                                          through='CommentVote')
+    following = models.ManyToManyField(User, related_name='followers', symmetrical=False)
+    postVotes = models.ManyToManyField(Post, related_name='postVotes', through='PostVote')
+    commentVotes = models.ManyToManyField(Comment, related_name='commentVotes', through='CommentVote')
     isPrivate = models.BooleanField(default=False)
     isDeleted = models.BooleanField(default=False)
 
