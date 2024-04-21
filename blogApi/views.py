@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
@@ -17,27 +18,35 @@ class PostCommentViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         change = False
         obj = self.get_object()
-        vote = request.data['vote']
-        if str(vote) in ['-1', '0', '1']:
-            vote_obj = PostVote if isinstance(obj, Post) else CommentVote
-            user = UserProfile.objects.get(user=request.user)
-            try:
-                vote_instance = vote_obj.objects.get(vote_for=obj, user=user)
-                vote_instance.vote = vote
-            except vote_obj.DoesNotExist:
-                vote_instance = vote_obj(vote_for=obj, user=user, vote=vote)
-            vote_instance.save()
-            self.update_vote_count(obj, vote_obj)
-            change = True
-        if isinstance(obj, Post):
-            if request.data['title']:
-                title = request.data['title']
-                obj.title = title
+        # edit
+        if request.data.get('edit', 0):
+            if obj.author == request.user:
+                if isinstance(obj, Post):
+                    if request.data.get('title', 0):
+                        title = request.data.get('title', 0)
+                        obj.title = title
+                        change = True
+                if request.data.get('content', 0):
+                    content = request.data.get('content', 0)
+                    obj.content = content
+                    change = True
+            else:
+                raise PermissionDenied
+        # vote
+        vote = request.data.get('vote', None)
+        if vote is not None:
+            if str(vote) in ['-1', '0', '1']:
+                vote_obj = PostVote if isinstance(obj, Post) else CommentVote
+                user = UserProfile.objects.get(user=request.user)
+                try:
+                    vote_instance = vote_obj.objects.get(vote_for=obj, user=user)
+                    vote_instance.vote = vote
+                except vote_obj.DoesNotExist:
+                    vote_instance = vote_obj(vote_for=obj, user=user, vote=vote)
+                vote_instance.save()
+                self.update_vote_count(obj, vote_obj)
                 change = True
-        if request.data['content']:
-            content = request.data['content']
-            obj.content = content
-            change = True
+        # return
         if change:
             obj.save()
             return Response(self.get_serializer(obj).data, status=status.HTTP_202_ACCEPTED)
