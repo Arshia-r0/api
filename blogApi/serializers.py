@@ -19,12 +19,12 @@ class CommentSerializer(serializers.ModelSerializer):
             'postDate', 'editedDate', 'likes', 'dislikes']
 
 
-class UserSerializer(serializers.ModelSerializer):
+class FullUserProfileSerializer(serializers.Serializer):
     user = serializers.StringRelatedField(read_only=True)
-    following = serializers.StringRelatedField(read_only=True)
-    postVotes = serializers.StringRelatedField(read_only=True,  many=True)
-    commentVotes = serializers.StringRelatedField(read_only=True,  many=True)
+    followers = serializers.StringRelatedField(read_only=True)
+    postVotes = serializers.StringRelatedField(read_only=True, many=True)
+    commentVotes = serializers.StringRelatedField(read_only=True, many=True)
 
-    class Meta:
-        model = UserProfile
-        fields = ['user', 'following', 'postVotes', 'commentVotes']
+
+class BaseUserProfileSerializer(serializers.Serializer):
+    user = serializers.StringRelatedField(read_only=True)

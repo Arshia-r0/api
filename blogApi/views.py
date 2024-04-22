@@ -79,11 +79,19 @@ class CommentViewSet(PostCommentViewSet):
 
 class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [UserPermissions]
-    serializer_class = UserSerializer
     pagination_class = PageNumberPagination
     http_method_names = ['get', 'post', 'patch', 'delete', 'options']
 
     def get_queryset(self):
         if self.request.user.is_superuser:
             return UserProfile.objects.all()
-        return UserProfile.objects.filter(isDeleted=False, isPrivate=False)
+        return UserProfile.objects.filter(isDeleted=False)
+
+    def get_serializer_class(self, *args, **kwargs):
+        superuser = self.request.user.is_superuser
+        authenticated = self.request.user.is_authenticated
+        is_self = self.request.user == self.get_object().user
+        follower = self.request.user in self.get_object().followers.all()
+        if superuser or (authenticated and (is_self or follower)):
+            return FullUserProfileSerializer
+        return BaseUserProfileSerializer
